@@ -92,7 +92,7 @@ label[for="file-upload"] {
 }
 
 .theme {
-  overflow: auto;
+  overflow: none;
   display: none;
 }
 
@@ -111,7 +111,7 @@ label[for="file-upload"] {
 }
 
 .box {
-  width: calc(100% / 8 - 4px);
+  width: calc(100% / 5 - 4px);
   height: 50px;
   display: inline-block;
   border-radius: 5px;
@@ -120,7 +120,22 @@ label[for="file-upload"] {
   border: 2px solid #ccc;
 }
 
-.theme-extraction.active .theme,
+@media (min-width: 768px){
+  .box {
+    width: calc(100% / 6 - 4px);
+  }
+
+  .theme {
+    overflow: auto;
+  }
+}
+
+.theme-extraction.active .theme{
+  display: block;
+  min-height: 500px;
+  border: 1px solid #ccc;
+}
+
 .theme-extraction.active #canvas-area {
   display: inline-block;
   border: 1px solid #ccc;

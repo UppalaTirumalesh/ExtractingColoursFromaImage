@@ -68,12 +68,9 @@ label[for="file-upload"] {
 }
 
 #canvas-area {
-  width: 400px;
   margin: 0 auto;
   height: 500px;
-  display: inline-block;
-  /* position: relative; */
-  border: 1px solid #ccc;
+  display: none;
 }
 
 #canvas {
@@ -83,13 +80,20 @@ label[for="file-upload"] {
 
 .theme-extraction {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
+  grid-gap: 20px;
   height: 500px;
 }
 
+@media (min-width : 768px) {
+  .theme-extraction {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .theme {
-  border: 1px solid #ccc;
   overflow: auto;
+  display: none;
 }
 
 #current-pixel {
@@ -97,6 +101,8 @@ label[for="file-upload"] {
   height: 50px;
   display: inline-block;
   border-radius: 5px;
+  border: 2px solid #ccc;
+  margin: 2px;
 }
 
 .color-history {
@@ -111,4 +117,11 @@ label[for="file-upload"] {
   border-radius: 5px;
   margin: 2px;
   cursor: pointer;
+  border: 2px solid #ccc;
+}
+
+.theme-extraction.active .theme,
+.theme-extraction.active #canvas-area {
+  display: inline-block;
+  border: 1px solid #ccc;
 }

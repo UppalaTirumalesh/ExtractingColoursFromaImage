@@ -1,5 +1,9 @@
 const PIXEL_RGBA = 4;
 const colorHistory = document.getElementById("color-history");
+let dropZone = document.getElementById("drop-zone");
+let selectFileEl = document.getElementById("file-upload");
+let canvasArea = document.getElementById("canvas-area");
+let themeExtraction = document.querySelector('.theme-extraction');
 
 const APP = {
   canvas: null,
@@ -8,7 +12,6 @@ const APP = {
   img: null,
 
   init(imageUrl) {
-    let canvasArea = document.getElementById("canvas-area");
     APP.canvas = document.getElementById("canvas");
     APP.ctx = APP.canvas.getContext("2d");
     const CANVAS_WIDTH = canvasArea.offsetWidth;
@@ -56,15 +59,26 @@ const APP = {
 
 };
 
-window.addEventListener("DOMContentLoaded", (event) => {
-  const dropZone = document.getElementById("drop-zone");
-  
+function selectFile(e){
+  e.stopPropagation();
+  e.preventDefault();
+  let file = e.target.files[0];
+  dropZone.style.display = "none";
+  let url = URL.createObjectURL(file);
+  activateCanvasArea();
+  APP.init(url);
+}
 
+function activateCanvasArea(){
+  themeExtraction.classList.add('active');
+}
 
+window.addEventListener("DOMContentLoaded", (event) => {  
   dropZone.addEventListener("dragover", activateDropZone);
   dropZone.addEventListener("dragleave", inActivateDropZone);
   dropZone.addEventListener("drop", handleFileUpload);
 
+  selectFileEl.addEventListener("change", selectFile);
 });
 
 function activateDropZone(e) {
@@ -79,17 +93,11 @@ function inActivateDropZone(e) {
 
 function handleFileUpload(e) {
   e.preventDefault();
-  this.classList.remove("active");
-  let file;
-  if (e.target.files) {
-    file = e.target.files[0];
-  } else {
-    file = e.dataTransfer.files[0];
-  }
-
-  this.style.display = "none";
-
+  dropZone.classList.remove("active");
+  let file = e.dataTransfer.files[0];
+  dropZone.style.display = "none";
   let imageUrl = URL.createObjectURL(file);
+  activateCanvasArea();
   APP.init(imageUrl);
 }
 

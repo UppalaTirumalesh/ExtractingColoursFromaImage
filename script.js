@@ -1,90 +1,99 @@
+const PIXEL_RGBA = 4;
+const colorHistory = document.getElementById("color-history");
+
 const APP = {
   canvas: null,
   ctx: null,
   data: [],
   img: null,
-  init() {
-    APP.canvas = document.querySelector('main canvas');
-    APP.ctx = APP.canvas.getContext('2d');
-    APP.canvas.width = 900;
-    APP.canvas.style.width = 900;
-    APP.canvas.height = 600;
-    APP.canvas.style.height = 600;
-    APP.img = document.createElement('img');
-    APP.img.src = APP.canvas.getAttribute('data-src');
+
+  init(imageUrl) {
+    let canvasArea = document.getElementById("canvas-area");
+    APP.canvas = document.getElementById("canvas");
+    APP.ctx = APP.canvas.getContext("2d");
+    const CANVAS_WIDTH = canvasArea.offsetWidth;
+    const CANVAS_HEIGHT = canvasArea.offsetHeight;
+
+    APP.canvas.width = CANVAS_WIDTH;
+    APP.canvas.height = CANVAS_HEIGHT;
+
+    APP.img = document.createElement("img");
+    APP.img.src = imageUrl;
+
     APP.img.onload = (ev) => {
-      APP.ctx.drawImage(APP.img, 0, 0);
-      let imgDataObj = APP.ctx.getImageData(
-        0,
-        0,
-        APP.canvas.width,
-        APP.canvas.height
-      );
+      APP.ctx.drawImage(APP.img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      let imgDataObj = APP.ctx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       APP.data = imgDataObj.data;
-      APP.canvas.addEventListener('mousemove', APP.getPixel);
-      APP.canvas.addEventListener('click', APP.addBox);
+      APP.canvas.addEventListener("mousemove", APP.getPixel);
+      APP.canvas.addEventListener("click", APP.addColorToHistory);
     };
   },
+
   getPixel(ev) {
     let cols = APP.canvas.width;
     let { offsetX, offsetY } = ev;
     let c = APP.getPixelColor(cols, offsetY, offsetX);
     let clr = `rgb(${c.red}, ${c.green}, ${c.blue})`;
-    document.getElementById('pixelColor').style.backgroundColor = clr;
+    document.getElementById("current-pixel").style.backgroundColor = clr;
     APP.pixel = clr;
   },
 
   getPixelColor(cols, x, y) {
     let pixel = cols * x + y;
-    let arrayPos = pixel * 4;
+    let arrayPos = pixel * PIXEL_RGBA;
     return {
       red: APP.data[arrayPos],
       green: APP.data[arrayPos + 1],
       blue: APP.data[arrayPos + 2],
+      alpha: APP.data[arrayPos + 3],
     };
   },
 
-  addBox(ev) {
-    let colours = document.querySelector('.colours');
-    let pixel = document.createElement('span');
-    pixel.className = 'box';
-    pixel.setAttribute('data-label', 'Exact pixel');
-    pixel.setAttribute('data-color', APP.pixel);
-    pixel.style.backgroundColor = APP.pixel;
-    colours.append(pixel);
-  },
+  addColorToHistory() {
+    let pixelTemplate = `<span class="box" onclick="copyColorCode(event)" style="background : ${APP.pixel}"></span>`;
+    colorHistory.insertAdjacentHTML("afterbegin", pixelTemplate)
+  }
+
 };
 
-var givenImage = document.getElementById("getImage");
-var image ;
+window.addEventListener("DOMContentLoaded", (event) => {
+  const dropZone = document.getElementById("drop-zone");
+  
 
-function displayImage() {
-  image = `
-            <form action="#" onSubmit='handleFile(event)' id="formtag">
-              <label for="myfile">Select a file:</label>
-              <input type="file" accept="image/png, image/jpg, image/gif" id="myfile" name="myfile" /><br /><br />
-              <input type="submit"/>
-            </form>
-          `;
-  givenImage.innerHTML = image;
-}
-function newDisplayImage(selectedFile) {
-  image = `
-            <div>
-              <span class="box" id="pixelColor" data-label="Current_Pixel"></span>
-              <canvas class="main_canvas" data-src="${URL.createObjectURL(selectedFile)}" id="canvas" width="500px"></canvas>
-            </div>
-            <section class="colours"></section>
-          `;
-  givenImage.innerHTML = image;
-}
-function handleFile(e) {
+
+  dropZone.addEventListener("dragover", activateDropZone);
+  dropZone.addEventListener("dragleave", inActivateDropZone);
+  dropZone.addEventListener("drop", handleFileUpload);
+
+});
+
+function activateDropZone(e) {
   e.preventDefault();
-  var fileInput = document.getElementById("myfile");
-  var selectedFile = fileInput.files[0];
-  console.log("selectedFile",selectedFile);
-  newDisplayImage(selectedFile);
-  APP.init();
+  this.classList.add("active");
 }
 
-document.addEventListener('DOMContentLoaded', displayImage());
+function inActivateDropZone(e) {
+  e.preventDefault();
+  this.classList.remove("active");
+}
+
+function handleFileUpload(e) {
+  e.preventDefault();
+  this.classList.remove("active");
+  let file;
+  if (e.target.files) {
+    file = e.target.files[0];
+  } else {
+    file = e.dataTransfer.files[0];
+  }
+
+  this.style.display = "none";
+
+  let imageUrl = URL.createObjectURL(file);
+  APP.init(imageUrl);
+}
+
+
+function copyColorCode(e){
+  navigator.clipboard.writeText(e.target.style.backgroundColor);
+}

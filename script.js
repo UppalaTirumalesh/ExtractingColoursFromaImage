@@ -53,10 +53,9 @@ const APP = {
   },
 
   addColorToHistory() {
-    let pixelTemplate = `<span class="box" onclick="copyColorCode(event)" style="background : ${APP.pixel}"></span>`;
-    colorHistory.insertAdjacentHTML("afterbegin", pixelTemplate)
+    let pixelTemplate = `<span class="box" onclick="copyColorCode(event)" onmouseover="showCopyText(event)" onmouseout="resetCopyText(event)" style="background : ${APP.pixel}"></span>`;
+    colorHistory.insertAdjacentHTML("afterbegin", pixelTemplate);
   }
-
 };
 
 function selectFile(e){
@@ -101,7 +100,23 @@ function handleFileUpload(e) {
   APP.init(imageUrl);
 }
 
+function copyColorCode(e) {
+  navigator.clipboard.writeText(e.target.style.backgroundColor)
+    .then(function() {
+      e.target.innerText = 'Copied!!';
+      setTimeout(function() {
+        e.target.innerText = 'Click to copy!';
+      }, 2000);
+    })
+    .catch(function(err) {
+      console.error('Unable to copy background color to clipboard:', err);
+    });
+}
 
-function copyColorCode(e){
-  navigator.clipboard.writeText(e.target.style.backgroundColor);
+function showCopyText(e) {
+  e.target.innerText = 'Click to copy!';
+}
+
+function resetCopyText(e) {
+  e.target.innerText = '';
 }
